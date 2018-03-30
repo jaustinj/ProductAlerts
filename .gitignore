@@ -1,0 +1,5 @@
+# Jupyter Notebooks
+notebooks/
+
+# Virtual Environment
+venv
