@@ -3,3 +3,9 @@ notebooks/
 
 # Virtual Environment
 venv
+
+# Logfiles
+log*
+
+# Pycache
+__pycache__
