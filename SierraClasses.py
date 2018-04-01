@@ -19,14 +19,22 @@ class SierraProduct(Product):
         value parsed'''
         
         @ScraperMixIn.log(log_return=True)
-        @ScraperMixIn.default_value('No Brand Found')
+        @ScraperMixIn.default_value(None)
         def _brand(tag):
             return tag.find('a',
                            {'class': re.compile('^productCard-title.*')}
                            ).text.strip()
+
+        @ScraperMixIn.log(log_return=True)
+        @ScraperMixIn.default_value(None)
+        def _url(tag):
+            url_end = tag.find('a',
+                               {'class': re.compile('^productCard-title.*')}
+                               )['href']
+            return 'https://www.sierratradingpost.com' + url_end
         
         @ScraperMixIn.log(log_return=True)
-        @ScraperMixIn.default_value('No Title Found')
+        @ScraperMixIn.default_value(None)
         def _title(tag):
             return tag.find('a',
                            {'class': re.compile('^display-block.*')}
@@ -46,13 +54,48 @@ class SierraProduct(Product):
                                 ).text.strip()
             msrp = re.search('\d{1,3}\.\d{2}', msrp_str).group()
             return float(msrp)
+
+        @ScraperMixIn.log(log_return=True)
+        @ScraperMixIn.default_value(None)
+        def _colors(tag):
+            # Find the list of swatches
+            swatches = tag.find(
+                'ul', {'class': 'swatches'}
+            ).findAll(
+                'li', {'class': 'swatch'}
+            )
+
+            # Get the color out of the data-colorchip-name attribute in swatches
+            colors = [
+                s.find('div', {'class': 'colorChipLinkContainer'})['data-colorchip-name'] 
+                for s in swatches
+            ]
+
+            # Clean up the color names
+            c = [re.sub('\(\d{1,3}\)', '', color).strip() for color in colors]
+
+            return ', '.join(c)
+
+        @ScraperMixIn.log(after_text='Deriving Percent Off', log_return=True)
+        def _perc_off(data):
+            if data['msrp']:
+                perc_off = (data['msrp'] - data['price']) / data['msrp']
+                perc_off = round(perc_off, 2)
+            else:
+                perc_off = None
+
+            return perc_off 
+
         
         data = {}
         
         data['brand'] = _brand(tag)
+        data['url'] = _url(tag)
         data['title'] = _title(tag)
         data['price'] = _price(tag)
         data['msrp'] = _msrp(tag)
+        data['colors'] = _colors(tag)
+        data['perc_off'] = _perc_off(data)
         
         return data
 

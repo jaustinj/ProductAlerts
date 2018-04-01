@@ -1,0 +1,30 @@
+version: '3'
+services:
+  postgres:
+    image: productalertsdb
+    restart: always
+    ports:
+      - 5050:5050
+    networks:
+      - app
+
+  sierra:
+    image: sierra
+    restart: always
+    networks:
+      - app
+    environment:
+    - PYTHONUNBUFFERED=0
+    command: /bin/bash -c "sleep 15 && python testDB.py"
+
+  # sierra_alerts:
+  #   image: sierra_alerts
+  #   restart: always
+  #   networks:
+  #     - app
+  #   environment:
+  #   - PYTHONUNBUFFERED=0
+  #   command: /bin/bash -c "sleep 20 && python Alerts.py"
+
+networks:
+  app:

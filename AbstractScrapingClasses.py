@@ -198,3 +198,11 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
         flattened_products = [val for sublist in list_of_lists for val in sublist]
         
         return (flattened_products, raw_pages)
+
+    def to_postgres(self, table):
+        
+        engine = create_engine('postgresql://docker:docker@postgres:5432/docker')
+        
+        df = pd.DataFrame(self.data)
+        df['ts'] = str(datetime.datetime.now())[:-7]
+        df.to_sql(table, engine, if_exists='append')
