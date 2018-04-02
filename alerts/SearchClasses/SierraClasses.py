@@ -8,7 +8,7 @@ import time
 from bs4 import BeautifulSoup
 import requests
 
-from AbstractScrapingClasses import ScraperMixIn, Product, Page, Search
+from SearchClasses.AbstractScrapingClasses import ScraperMixIn, Product, Page, Search
 
 class SierraProduct(Product):
     
@@ -44,7 +44,7 @@ class SierraProduct(Product):
         @ScraperMixIn.default_value(None)
         def _price(tag):
             price_str = tag.find('span', {'class': 'ourPrice'}).text.strip()
-            return float(price_str.replace('$', ''))
+            return float(price_str.replace('$', '').replace(',',''))
         
         @ScraperMixIn.log(log_return=True)
         @ScraperMixIn.default_value(None)
@@ -52,8 +52,8 @@ class SierraProduct(Product):
             msrp_str = tag.find('span', 
                                  {'class': re.compile('^retailPrice.*')}
                                 ).text.strip()
-            msrp = re.search('\d{1,3}\.\d{2}', msrp_str).group()
-            return float(msrp)
+            msrp = re.search('\d{0,3},?\d{1,3}\.\d{2}', msrp_str).group()
+            return float(msrp.replace(',',''))
 
         @ScraperMixIn.log(log_return=True)
         @ScraperMixIn.default_value(None)

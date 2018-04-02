@@ -27,7 +27,7 @@ build_postgres:
 	sudo docker build ./postgres -t productalertsdb
 
 build_sierra:
-	sudo docker build . -t sierra 
+	sudo docker build ./alerts -t sierra 
 
 build:
 	make build_postgres

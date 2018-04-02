@@ -10,12 +10,12 @@ services:
 
   sierra:
     image: sierra
-    restart: always
+    #restart: always
     networks:
       - app
     environment:
     - PYTHONUNBUFFERED=0
-    command: /bin/bash -c "sleep 15 && python testDB.py"
+    command: /bin/bash -c "sleep 15 && python alerts.py"
 
   # sierra_alerts:
   #   image: sierra_alerts

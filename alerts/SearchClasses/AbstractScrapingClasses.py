@@ -7,7 +7,10 @@ import re
 import time
 
 from bs4 import BeautifulSoup
+import pandas as pd 
 import requests
+from sqlalchemy import create_engine
+from sqlalchemy.exc import ProgrammingError
 
 class ScraperMixIn(object):
     
@@ -206,3 +209,5 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
         df = pd.DataFrame(self.data)
         df['ts'] = str(datetime.datetime.now())[:-7]
         df.to_sql(table, engine, if_exists='append')
+
+        return df
