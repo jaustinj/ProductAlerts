@@ -13,9 +13,13 @@ from BaseClasses.Ebayify import add_ebay_link
 # Function to add custom css to alert output
 from BaseClasses.CustomCSS import add_css
 
-# Custom Abstract Scraper Classes
+# Abstract Scraper Classes
 from BaseClasses.AbstractScrapingClasses import *
+
+# Function to send df to postgres
+from BaseClasses.Send2Postgres import to_postgres
+
 # Custom search built on top of AbstractScrapingClasses ======================== 
 
 # Sierra Trading Post Search/Scraper
-from SearchClasses.SierraClasses import SierraSearch, SierraHTMLizer
+from CustomClasses.SierraClasses import SierraSearch, SierraHTMLizer

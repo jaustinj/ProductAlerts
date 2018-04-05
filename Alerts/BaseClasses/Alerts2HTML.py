@@ -4,8 +4,8 @@ import re
 
 import pandas as pd
 
-from Ebayify import add_ebay_link
-from CustomCSS import add_css
+from BaseClasses.Ebayify import add_ebay_link
+from BaseClasses.CustomCSS import add_css
 
 class HTMLizer(abc.ABC):
     

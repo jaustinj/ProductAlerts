@@ -9,3 +9,6 @@ log*
 
 # Pycache
 __pycache__
+
+# My config file
+Alerts/config.py
