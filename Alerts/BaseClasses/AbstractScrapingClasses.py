@@ -141,8 +141,8 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
     @abc.abstractmethod
     def _select_page_class(self):
         '''Return the Page Class used to parse pages.
-        i.e.: return MyPageParser'''
-        
+        i.e.: return MyPageParser'''   
+
     @abc.abstractmethod
     def _search_url(self, search_string):
         '''Takes a search string and returns the url for
@@ -185,7 +185,6 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
             
         return urls
     
-    
     @ScraperMixIn.log(before_text='Converting Soups to Pages',
                       after_text='Soups Converted to Pages')
     def _html2Pages(self, list_of_page_soups):
@@ -208,6 +207,7 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
         
         df = pd.DataFrame(self.data)
         df['ts'] = str(datetime.datetime.now())[:-7]
+        df['ds'] = str(datetime.date.today())
         df.to_sql(table, engine, if_exists='append')
 
         return df

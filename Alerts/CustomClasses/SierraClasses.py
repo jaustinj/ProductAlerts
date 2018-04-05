@@ -8,7 +8,10 @@ import time
 from bs4 import BeautifulSoup
 import requests
 
-from SearchClasses.AbstractScrapingClasses import ScraperMixIn, Product, Page, Search
+from BaseClasses.AbstractScrapingClasses import *
+from BaseClasses.Alerts2HTML import HTMLizer
+
+# SCRAPER CLASSES =============================================================
 
 class SierraProduct(Product):
     
@@ -154,3 +157,12 @@ class SierraSearch(Search):
         
         else:
             return None
+
+
+# SETUP HTML ALERT FILE =======================================================
+class SierraHTMLizer(HTMLizer):
+    def _get_convert_dict(self):
+        return {
+            'url': 'See Deal',
+            'ebay': 'See Sold on Ebay'
+        }
