@@ -1,10 +1,11 @@
 from time import sleep
 
-from AlertClasses import check_sierra
+from AlertClasses import *
 from config import ALERT_CONFIG
 
 while True:
-  check_sierra()
+  CheckSierra()
+  CheckBackcountry()
 
   sleep(ALERT_CONFIG['TIME_BETWEEN_CHECKS'])
 

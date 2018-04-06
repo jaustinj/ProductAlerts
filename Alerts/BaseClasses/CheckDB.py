@@ -9,8 +9,9 @@ class CheckDB():
 
     ENGINE = create_engine('postgresql://docker:docker@postgres:5432/docker')
 
-    def __init__(self, table, unique_sku, threshold_column, threshold, eq='>='):
+    def __init__(self, table, alert_table, unique_sku, threshold_column, threshold, eq='>='):
         self._table = table
+        self._alert_table = alert_table
         self._sku = unique_sku # column name that is unique to product
         self._col = threshold_column
         self._eq = eq
@@ -24,9 +25,9 @@ class CheckDB():
                 SELECT 
                     1
                 FROM
-                    {table}_alerted
+                    {alert_table}
             );
-            '''.format(table=self._table)
+            '''.format(alert_table=self._alert_table)
 
         try:
             df = pd.read_sql_query(check_for_alerts_table, con=CheckDB.ENGINE)
@@ -57,7 +58,7 @@ class CheckDB():
                     SELECT
                         *
                     FROM 
-                        {table}_alerted
+                        {alert_table}
                     WHERE
                         ds = (SELECT MAX(ds) FROM {table})
                 ) already_alerted_today
@@ -69,6 +70,7 @@ class CheckDB():
                     already_alerted_today.{unique_sku} IS NULL ;
             '''.format(
                     table=self._table,
+                    alert_table=self._alert_table,
                     col=self._col,
                     equality=self._eq,
                     threshold=self._threshold,
