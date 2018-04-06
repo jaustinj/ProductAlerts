@@ -201,13 +201,13 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
         
         return (flattened_products, raw_pages)
 
-    def to_postgres(self, table):
+    def to_postgres(self, table, ts=datetime.datetime.now()):
         
         engine = create_engine('postgresql://docker:docker@postgres:5432/docker')
         
         df = pd.DataFrame(self.data)
-        df['ts'] = str(datetime.datetime.now())[:-7]
-        df['ds'] = str(datetime.date.today())
+        df['ts'] = str(ts)[:-7]
+        df['ds'] = str(ts)[:-16]
         df.to_sql(table, engine, if_exists='append', index=False)
 
         return df

@@ -42,45 +42,52 @@ class CheckSite(abc.ABC):
     '''
 
   def main(self, config, Search, Htmlizer):
+    
+    # Only most recent ts is pulled.  We'll attach
+    # The same ts to all searches so they will all be pulled
+    ts = datetime.datetime.now()
+
     for search in config['SEARCHES']:
+
         S = Search(search, 
           delay=config['DELAY_BETWEEN_PAGE_REQUESTS'])
 
-        S.to_postgres(config['POSTGRES_BASE_TABLE']) # send to posgres table 
+        # send to postgres table with timestamp of this scrape
+        S.to_postgres(config['POSTGRES_BASE_TABLE'], ts) 
 
-        # Uuse SQL to find alerts from table that was just sent to posgres
-        alerts_df = CheckDB(table=config['POSTGRES_BASE_TABLE'],
-                            alert_table=config['POSTGRES_ALERT_TABLE'],
-                            unique_sku=config['POSTGRES_SKU_COLUMN'],
-                            threshold_column=config['THRESHOLD_COLUMN'],
-                            threshold=config['THRESHOLD'],
-                            eq=config['THRESHOLD_TYPE']).alerts
+    # Use SQL to find alerts from table that was just sent to posgres
+    alerts_df = CheckDB(table=config['POSTGRES_BASE_TABLE'],
+                        alert_table=config['POSTGRES_ALERT_TABLE'],
+                        unique_sku=config['POSTGRES_SKU_COLUMN'],
+                        threshold_column=config['THRESHOLD_COLUMN'],
+                        threshold=config['THRESHOLD'],
+                        eq=config['THRESHOLD_TYPE']).alerts
 
 
-        if len(alerts_df) > 0:
+    if len(alerts_df) > 0:
 
-            # Add some special formatting to the alerts and save as html file
+        # Add some special formatting to the alerts and save as html file
 
-            if config['SEARCH_EBAY_COLUMN']:
-              alerts_df2 = add_ebay_link(alerts_df, config['SEARCH_EBAY_COLUMN'])
-            else:
-              alerts_df2 = alerts_df
+        if config['SEARCH_EBAY_COLUMN']:
+          alerts_df2 = add_ebay_link(alerts_df, config['SEARCH_EBAY_COLUMN'])
+        else:
+          alerts_df2 = alerts_df
 
-            H = Htmlizer(alerts_df2)
-            H.to_html('./alert_outputs/{}.html'.format(config['OUTPUT_FILE_NAME']))
+        H = Htmlizer(alerts_df2)
+        H.to_html('./alert_outputs/{}.html'.format(config['OUTPUT_FILE_NAME']))
 
-            # Send email with html file output
-            for email in EMAIL_CONFIG['SEND_TO']:
-                send_alert(send_from=EMAIL_CONFIG['SEND_FROM'], 
-                           send_to=email, 
-                           username=EMAIL_CONFIG['USERNAME'], 
-                           password=EMAIL_CONFIG['PASSWORD'],
-                           subject=config['EMAIL_SUBJECT'], 
-                           message='New Alerts, Download Below', 
-                           file='./alert_outputs/{}.html'.format(config['OUTPUT_FILE_NAME']) 
-                           )
+        # Send email with html file output
+        for email in EMAIL_CONFIG['SEND_TO']:
+            send_alert(send_from=EMAIL_CONFIG['SEND_FROM'], 
+                       send_to=email, 
+                       username=EMAIL_CONFIG['USERNAME'], 
+                       password=EMAIL_CONFIG['PASSWORD'],
+                       subject=config['EMAIL_SUBJECT'], 
+                       message='New Alerts, Download Below', 
+                       file='./alert_outputs/{}.html'.format(config['OUTPUT_FILE_NAME']) 
+                       )
 
-            to_postgres(alerts_df, config['POSTGRES_ALERT_TABLE'])
+        to_postgres(alerts_df, config['POSTGRES_ALERT_TABLE'])
 
 
 # SIERRA TRADING POST ALERTS ==================================================
@@ -101,7 +108,7 @@ class CheckSierra(CheckSite):
 # BACKCOUNTRY ALERTS ==========================================================
 
 
-class CheckSierra(CheckSite):
+class CheckBackcountry(CheckSite):
 
   def _set_config(self):
     return BACKCOUNTRY_CONFIG
@@ -118,73 +125,73 @@ class CheckSierra(CheckSite):
 
 
 
-def check_sierra():
-    for search in SIERRA_CONFIG['SEARCHES']:
-        S = SierraSearch(search, 
-                         delay=SIERRA_CONFIG['DELAY_BETWEEN_PAGE_REQUESTS'])
-        S.to_postgres('sierra_test_two') # send to posgres table 
+# def check_sierra():
+#     for search in SIERRA_CONFIG['SEARCHES']:
+#         S = SierraSearch(search, 
+#                          delay=SIERRA_CONFIG['DELAY_BETWEEN_PAGE_REQUESTS'])
+#         S.to_postgres('sierra_test_two') # send to posgres table 
 
-        # Uuse SQL to find alerts from table that was just sent to posgres
-        alerts_df = CheckDB(table='sierra_test_two',
-                            alert_table='sierra_test_two_alerted',
-                            unique_sku='title',
-                            threshold_column='perc_off',
-                            threshold=SIERRA_CONFIG['THRESHOLD'],
-                            eq='>=').alerts
-
-
-        if len(alerts_df) > 0:
-
-            # Add some special formatting to the alerts and save as html file
-            alerts_with_ebay = add_ebay_link(alerts_df, 'title')
-            SierraHTMLizer(alerts_with_ebay).to_html('./alert_outputs/sierra_alerts.html')
-
-            # Send email with html file output
-            for email in EMAIL_CONFIG['SEND_TO']:
-                send_alert(send_from=EMAIL_CONFIG['SEND_FROM'], 
-                           send_to=email, 
-                           username=EMAIL_CONFIG['USERNAME'], 
-                           password=EMAIL_CONFIG['PASSWORD'],
-                           subject=EMAIL_CONFIG['SUBJECT'], 
-                           message='New Alerts, Download Below', 
-                           file='./alert_outputs/sierra_alerts.html' 
-                           )
-
-            to_postgres(alerts_df, 'sierra_test_two_alerted')
+#         # Uuse SQL to find alerts from table that was just sent to posgres
+#         alerts_df = CheckDB(table='sierra_test_two',
+#                             alert_table='sierra_test_two_alerted',
+#                             unique_sku='title',
+#                             threshold_column='perc_off',
+#                             threshold=SIERRA_CONFIG['THRESHOLD'],
+#                             eq='>=').alerts
 
 
-# BACKCOUNTRY ALERTS ==========================================================
-def check_backcountry():
-    for search in BACKCOUNTRY_CONFIG['SEARCHES']:
-        S = SierraSearch(search, 
-                         delay=BACKCOUNTRY_CONFIG['DELAY_BETWEEN_PAGE_REQUESTS'])
-        S.to_postgres('sierra_test_two') # send to posgres table 
+#         if len(alerts_df) > 0:
 
-        # Uuse SQL to find alerts from table that was just sent to posgres
-        alerts_df = CheckDB(table='backcountry_test',
-                            alert_table='backcountry_test_alerted',
-                            unique_sku='url',
-                            threshold_column='perc_off',
-                            threshold=BACKCOUNTRY_CONFIG['THRESHOLD'],
-                            eq='>=').alerts
+#             # Add some special formatting to the alerts and save as html file
+#             alerts_with_ebay = add_ebay_link(alerts_df, 'title')
+#             SierraHTMLizer(alerts_with_ebay).to_html('./alert_outputs/sierra_alerts.html')
+
+#             # Send email with html file output
+#             for email in EMAIL_CONFIG['SEND_TO']:
+#                 send_alert(send_from=EMAIL_CONFIG['SEND_FROM'], 
+#                            send_to=email, 
+#                            username=EMAIL_CONFIG['USERNAME'], 
+#                            password=EMAIL_CONFIG['PASSWORD'],
+#                            subject=EMAIL_CONFIG['SUBJECT'], 
+#                            message='New Alerts, Download Below', 
+#                            file='./alert_outputs/sierra_alerts.html' 
+#                            )
+
+#             to_postgres(alerts_df, 'sierra_test_two_alerted')
 
 
-        if len(alerts_df) > 0:
+# # BACKCOUNTRY ALERTS ==========================================================
+# def check_backcountry():
+#     for search in BACKCOUNTRY_CONFIG['SEARCHES']:
+#         S = SierraSearch(search, 
+#                          delay=BACKCOUNTRY_CONFIG['DELAY_BETWEEN_PAGE_REQUESTS'])
+#         S.to_postgres('sierra_test_two') # send to posgres table 
 
-            # Add some special formatting to the alerts and save as html file
-            alerts_with_ebay = add_ebay_link(alerts_df, 'title')
-            SierraHTMLizer(alerts_with_ebay).to_html('./alert_outputs/backcountry_alerts.html')
+#     # Uuse SQL to find alerts from table that was just sent to posgres
+#     alerts_df = CheckDB(table='backcountry_test',
+#                         alert_table='backcountry_test_alerted',
+#                         unique_sku='url',
+#                         threshold_column='perc_off',
+#                         threshold=BACKCOUNTRY_CONFIG['THRESHOLD'],
+#                         eq='>=').alerts
 
-            # Send email with html file output
-            for email in EMAIL_CONFIG['SEND_TO']:
-                send_alert(send_from=EMAIL_CONFIG['SEND_FROM'], 
-                           send_to=email, 
-                           username=EMAIL_CONFIG['USERNAME'], 
-                           password=EMAIL_CONFIG['PASSWORD'],
-                           subject=EMAIL_CONFIG['SUBJECT'], 
-                           message='New Alerts, Download Below', 
-                           file='./alert_outputs/backcountry_alerts.html' 
-                           )
 
-            to_postgres(alerts_df, 'backcountry_test_alerted')
+#     if len(alerts_df) > 0:
+
+#         # Add some special formatting to the alerts and save as html file
+#         alerts_with_ebay = add_ebay_link(alerts_df, 'title')
+#         SierraHTMLizer(alerts_with_ebay).to_html('./alert_outputs/backcountry_alerts.html')
+
+#         # Send email with html file output
+#         for email in EMAIL_CONFIG['SEND_TO']:
+#             send_alert(send_from=EMAIL_CONFIG['SEND_FROM'], 
+#                        send_to=email, 
+#                        username=EMAIL_CONFIG['USERNAME'], 
+#                        password=EMAIL_CONFIG['PASSWORD'],
+#                        subject=EMAIL_CONFIG['SUBJECT'], 
+#                        message='New Alerts, Download Below', 
+#                        file='./alert_outputs/backcountry_alerts.html' 
+#                        )
+
+#         to_postgres(alerts_df, 'backcountry_test_alerted')
 
