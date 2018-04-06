@@ -15,7 +15,7 @@ class HTMLizer(abc.ABC):
         self.data = self._convert_columns()
         
     def _url_to_link(self, url, link_text):
-        return '<a href="{}" target="_blank">{}</a>'.format(url, link_text)
+        return '<a href="{}">{}</a>'.format(url, link_text)
     
     def _convert_columns(self):
         df = self._original_df.copy()
