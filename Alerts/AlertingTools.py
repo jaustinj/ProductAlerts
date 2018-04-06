@@ -23,3 +23,6 @@ from BaseClasses.Send2Postgres import to_postgres
 
 # Sierra Trading Post Search/Scraper
 from CustomClasses.SierraClasses import SierraSearch, SierraHTMLizer
+
+# Backcountry Classes
+from CustomClasses.BackcountryClasses import BackcountrySearch, BackcountryHTMLizer

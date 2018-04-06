@@ -21,7 +21,7 @@ class CheckSite(abc.ABC):
     self.config = self._set_config()
     self.Search = self._set_search()
     self.Htmlizer = self._set_htmlizer()
-    self.main()
+    self.main(self.config, self.Search, self.Htmlizer)
 
   @abc.abstractmethod
   def _set_config(self):
@@ -41,11 +41,11 @@ class CheckSite(abc.ABC):
     e.g. return SierraHTMLizer
     '''
 
-  def main(self, config=self.config, Search=self.Search, Htmlizer=self.Htmlizer):
+  def main(self, config, Search, Htmlizer):
     for search in config['SEARCHES']:
         S = Search(search, 
           delay=config['DELAY_BETWEEN_PAGE_REQUESTS'])
-        
+
         S.to_postgres(config['POSTGRES_BASE_TABLE']) # send to posgres table 
 
         # Uuse SQL to find alerts from table that was just sent to posgres
