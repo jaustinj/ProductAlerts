@@ -62,7 +62,7 @@ class CheckDB():
                         ds = (SELECT MAX(ds) FROM {table})
                 ) already_alerted_today
 
-                ON above_threshold.{unique_sku} = already_alerted_today.{unique_id}
+                ON above_threshold.{unique_sku} = already_alerted_today.{unique_sku}
                 AND above_threshold.ds = already_alerted_today.ds
 
                 WHERE

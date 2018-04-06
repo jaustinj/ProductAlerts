@@ -208,6 +208,6 @@ class Search(collections.UserList, abc.ABC, ScraperMixIn):
         df = pd.DataFrame(self.data)
         df['ts'] = str(datetime.datetime.now())[:-7]
         df['ds'] = str(datetime.date.today())
-        df.to_sql(table, engine, if_exists='append')
+        df.to_sql(table, engine, if_exists='append', index=False)
 
         return df

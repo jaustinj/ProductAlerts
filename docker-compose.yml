@@ -1,15 +1,15 @@
 version: '3'
 services:
   postgres:
-    image: productalertsdb
+    image: postgres
     restart: always
     ports:
       - 5050:5050
     networks:
       - app
 
-  sierra:
-    image: sierra
+  alerts:
+    image: alerts
     #restart: always
     networks:
       - app

@@ -20,10 +20,10 @@ def check_sierra():
     for search in SIERRA_CONFIG['SEARCHES']:
         S = SierraSearch(search, 
                          delay=SIERRA_CONFIG['DELAY_BETWEEN_PAGE_REQUESTS'])
-        S.to_postgres('sierra_test') # send to posgres table 
+        S.to_postgres('sierra_test_two') # send to posgres table 
 
         # Uuse SQL to find alerts from table that was just sent to posgres
-        alerts_df = CheckDB(table='sierra_test',
+        alerts_df = CheckDB(table='sierra_test_two',
                             unique_sku='title',
                             threshold_column='perc_off',
                             threshold=SIERRA_CONFIG['THRESHOLD'],
@@ -33,7 +33,7 @@ def check_sierra():
         if len(alerts_df) > 0:
 
             # Add some special formatting to the alerts and save as html file
-            alerts_with_ebay = add_ebay_link(alerts_df)
+            alerts_with_ebay = add_ebay_link(alerts_df, 'title')
             SierraHTMLizer(alerts_with_ebay).to_html('./alert_outputs/sierra_alerts.html')
 
             # Send email with html file output
@@ -47,5 +47,5 @@ def check_sierra():
                            file='./alert_outputs/sierra_alerts.html' 
                            )
 
-            to_postgres(alerts_df, 'sierra_test_alerted')
+            to_postgres(alerts_df, 'sierra_test_two_alerted')
 
